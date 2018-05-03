@@ -6,6 +6,7 @@ define([
   const LOL_CEF_CLIENT_LOG_LISTENER_ID = 'LOL_CEF_CLIENT_LOG_LISTENER_ID';
   const SUMMONER_NAME_REGEX = /.*\"localPlayerCellId\":(\d),\"myTeam\":(\[.*\]).*/;
 
+  let _teamInfo = null;
   let _gameInfo = null;
   let _timerId = null;
   let _cefRegionTimer = null;
@@ -166,9 +167,7 @@ define([
 
       _ioPlugin.onFileListenerChanged.addListener(_cefClientLogFileListener);
 
-      console.log('starting to listen on ' + fullLogPath);
       _listenOnCefClientLog(fullLogPath, callback);
-
     });
   }
 
@@ -207,7 +206,7 @@ define([
       return;
     }
 
-    if (line.includes('lol-champ-select|')) {
+    if (line.includes('lol-champ-select|') && !_teamInfo) {
       // looking for specific actions instead of the whole actions JSON
       // since sometimes the actions JSON is invalid
 
@@ -217,25 +216,33 @@ define([
           let localPlayerCellId = Number(matches[1]);
           let myTeam = matches[2];
           myTeam = myTeam.substring(0, myTeam.indexOf("]") + 1);
-          _printMyTeam(localPlayerCellId, myTeam);
+          _teamInfo = JSON.parse(myTeam);
+          _printMyTeam(localPlayerCellId, _teamInfo);
         } catch (e) {
           console.error('failed to parse log line: ' + e.message);
+          _teamInfo = null;
         }
       }
+    }
+
+    if (line.includes('GAMEFLOW_EVENT.QUIT_TO_LOBBY') || line.includes('GAMEFLOW_EVENT.TERMINATED')) {
+      // return to lobby (dodge?)
+      _teamInfo = null;
+      _printMyTeam(null, []);
     }
   }
 
   function _printMyTeam(localPlayerCellId, myTeam) {
     let div = document.getElementById('my-team');
     let text = '';
-    myTeam = JSON.parse(myTeam);
+    
     for (let playerInfo of myTeam) {
       text += '<br>' + playerInfo.displayName;
       if (playerInfo.cellId === localPlayerCellId) {
         let summonerName = playerInfo.displayName;
         summonerName = summonerName.toLowerCase();
-        _ioPlugin.stopFileListen(LOL_CEF_CLIENT_LOG_LISTENER_ID);
-        _ioPlugin.onFileListenerChanged.removeListener(_cefClientLogFileListener);
+        //_ioPlugin.stopFileListen(LOL_CEF_CLIENT_LOG_LISTENER_ID);
+        //_ioPlugin.onFileListenerChanged.removeListener(_cefClientLogFileListener);
 
         console.log('ME: ' + summonerName);
         // break;
