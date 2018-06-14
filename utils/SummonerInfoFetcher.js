@@ -77,7 +77,7 @@ define([
     if (_cefRegionRetries === SUMMONER_INFO_FETCHER_MAX_RETRIES) {
       console.error('SummonerInfoFetcher - CEF region reached max retries!');
       sendTrack('REGION_FETCH_FAILURE');
-      stop(_cefRegionTimer);
+      stop();
       return;
     }
 
@@ -151,22 +151,20 @@ define([
     if (_cefSummonerNameRetries === SUMMONER_INFO_FETCHER_MAX_RETRIES) {
       console.error('SummonerInfoFetcher - CEF region reached max retries!');
       sendTrack('SUMMONER_NAME_FETCH_FAILURE');
-      stop(_cefSummonerNameTimer);
+      stop();
       return;
     }
 
 
     _ioPlugin.getLatestFileInDirectory(filePattern, function(status, logFileName) {
-      let fullLogPath;
-
       if (!status || !logFileName.endsWith(".log")) {
         return callback(false, "couldn't find log file", null);
       }
 
-      fullLogPath = path + logFileName;
-
+      _ioPlugin.onFileListenerChanged.removeListener(_cefClientLogFileListener);
       _ioPlugin.onFileListenerChanged.addListener(_cefClientLogFileListener);
 
+      let fullLogPath = path + logFileName;
       _listenOnCefClientLog(fullLogPath, callback);
     });
   }
@@ -206,6 +204,11 @@ define([
       return;
     }
 
+    if (line.includes('Shut down EventCollector')) {
+      console.log('EventCollector shut down detected, switching to new log file...');
+      setTimeout(getNewLeagueClientLog, 3000);
+    }
+
     if (line.includes('lol-champ-select|') && !_teamInfo) {
       // looking for specific actions instead of the whole actions JSON
       // since sometimes the actions JSON is invalid
@@ -225,7 +228,9 @@ define([
       }
     }
 
-    if (line.includes('GAMEFLOW_EVENT.QUIT_TO_LOBBY') || line.includes('GAMEFLOW_EVENT.TERMINATED')) {
+    if (line.includes('GAMEFLOW_EVENT.QUIT_TO_LOBBY') ||
+      line.includes('GAMEFLOW_EVENT.TERMINATED') ||
+      line.includes('lol-end-of-game| Game client is now not running')) {
       // return to lobby (dodge?)
       _teamInfo = null;
       _printMyTeam(null, []);
@@ -235,7 +240,7 @@ define([
   function _printMyTeam(localPlayerCellId, myTeam) {
     let div = document.getElementById('my-team');
     let text = '';
-    
+
     for (let playerInfo of myTeam) {
       text += '<br>' + playerInfo.displayName;
       if (playerInfo.cellId === localPlayerCellId) {
@@ -250,6 +255,16 @@ define([
     }
     div.innerHTML = text;
     console.table(myTeam);
+  }
+
+  function getNewLeagueClientLog() {
+    clearTimeout(_cefSummonerNameTimer);
+
+    _ioPlugin.stopFileListen(LOL_CEF_CLIENT_LOG_LISTENER_ID);
+    _ioPlugin.onFileListenerChanged.removeListener(_cefClientLogFileListener);
+
+    _cefSummonerNameRetries = 0;
+    _getSummonerNameCefClient(summonerNameCallback);
   }
 
   /**
