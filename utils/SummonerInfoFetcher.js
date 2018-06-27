@@ -239,21 +239,18 @@ define([
 
   function _printMyTeam(localPlayerCellId, myTeam) {
     let div = document.getElementById('my-team');
-    let text = '';
+    let team = 'TEAM:<br>';
+    let me = 'ME:<br>';
 
     for (let playerInfo of myTeam) {
-      text += '<br>' + playerInfo.displayName;
+      let summonerId = playerInfo.summonerId;
       if (playerInfo.cellId === localPlayerCellId) {
-        let summonerName = playerInfo.displayName;
-        summonerName = summonerName.toLowerCase();
-        //_ioPlugin.stopFileListen(LOL_CEF_CLIENT_LOG_LISTENER_ID);
-        //_ioPlugin.onFileListenerChanged.removeListener(_cefClientLogFileListener);
-
-        console.log('ME: ' + summonerName);
-        // break;
+        me += summonerId;
+      } else {
+        team += summonerId + '<br>';
       }
     }
-    div.innerHTML = text;
+    div.innerHTML = team + '<br>' + me;
     console.table(myTeam);
   }
 
