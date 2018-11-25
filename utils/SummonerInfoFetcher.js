@@ -4,7 +4,7 @@ define([
   const SUMMONER_INFO_FETCHER_INTERVAL_MS = 2000;
   const SUMMONER_INFO_FETCHER_MAX_RETRIES = 20;
   const LOL_CEF_CLIENT_LOG_LISTENER_ID = 'LOL_CEF_CLIENT_LOG_LISTENER_ID';
-  const SUMMONER_NAME_REGEX = /.*\"localPlayerCellId\":(\d),\"myTeam\":(\[.*\]).*/;
+  const SUMMONER_NAME_REGEX = /\"localPlayerCellId\":(\d).*,\"myTeam\":(\[.*\])/;
 
   let _teamInfo = null;
   let _gameInfo = null;
