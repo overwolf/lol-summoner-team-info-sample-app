@@ -1,73 +1,78 @@
 {
-  "manifest_version": "1",
-  "type": "WebApp",
-  "meta": {
-    "name": "LoL Party Demo",
-    "version": "0.0.0",
-    "minimum-overwolf-version": "0.109.0.0",
-    "author": "Overwolf",
-    "icon": "icon.png",
-    "icon_gray": "icon_gray.png",
-    "description": "Get team members info from champion select screen"
-  },
-  "hide_from_store": true,
-  "permissions": [
-    "Hotkeys",
-    "Media",
-    "GameInfo",
-    "Streaming",
-    "FileSystem",
-    "Profile",
-    "Extensions"
-  ],
-  "data": {
-    "extra-objects": {
-      "simple-io-plugin": {
-        "file": "simple-io-plugin.dll",
-        "class": "overwolf.plugins.SimpleIOPlugin"
-      }
+    "manifest_version": "1",
+    "type": "WebApp",
+    "meta": {
+      "name": "LoL Party Demo",
+      "version": "0.0.0",
+      "minimum-overwolf-version": "0.109.0.0",
+      "author": "Overwolf",
+      "icon": "icon.png",
+      "icon_gray": "icon_gray.png",
+      "description": "Get team members info from champion select screen"
     },
-
-    "externally_connectable": {
-      "matches": [
-        "http://*.overwolf.com",
-        "https://*.google-analytics.com",
-        "http://*.google-analytics.com",
-        "https://www.googleapis.com"
-      ]
-    },
-
-    "game_events": [5426],
-
-    "launch_events": [
-      {
-        "event": "GameLaunch",
-        "event_data": {
-          "game_ids": [10902]
-        },
-        "start_minimized": false
-      }
+    "hide_from_store": true,
+    "permissions": [
+      "Hotkeys",
+      "Media",
+      "GameInfo",
+      "Streaming",
+      "FileSystem",
+      "Profile",
+      "Extensions"
     ],
-
-    "start_window": "main",
-    "windows": {
-      "main": {
-        "file": "index.html",
-        "size": {
-          "width": 500,
-          "height": 500
-        },
-        "start_position": {
-          "top": 0,
-          "left": 0
-        },
-        "transparent": false,
-        "clickthrough": true,
-        "show_in_taskbar": true,
-        "grab_keyboard_focus": false,
-        "grab_focus_on_desktop": false,
-        "background_optimization": true
+    "data": {
+      "extra-objects": {
+        "simple-io-plugin": {
+          "file": "simple-io-plugin.dll",
+          "class": "overwolf.plugins.SimpleIOPlugin"
+        }
+      },
+  
+      "externally_connectable": {
+        "matches": [
+          "http://*.overwolf.com",
+          "https://*.google-analytics.com",
+          "http://*.google-analytics.com",
+          "https://www.googleapis.com"
+        ]
+      },
+      "game_targeting": {
+        "type": "dedicated",
+        "game_ids": [
+            5426
+        ]
+      },
+      "game_events": [5426],
+  
+      "launch_events": [
+        {
+          "event": "GameLaunch",
+          "event_data": {
+            "game_ids": [10902]
+          },
+          "start_minimized": false
+        }
+      ],
+  
+      "start_window": "main",
+      "windows": {
+        "main": {
+          "file": "index.html",
+          "size": {
+            "width": 500,
+            "height": 500
+          },
+          "start_position": {
+            "top": 0,
+            "left": 0
+          },
+          "transparent": false,
+          "clickthrough": true,
+          "show_in_taskbar": true,
+          "grab_keyboard_focus": false,
+          "grab_focus_on_desktop": false,
+          "background_optimization": true
+        }
       }
     }
   }
-}
